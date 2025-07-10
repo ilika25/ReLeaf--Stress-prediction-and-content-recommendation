@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register | ReLeaf</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e6f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .register-card {
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 380px;
+    }
+
+    .register-card h2 {
+      color: #006666;
+      margin-bottom: 20px;
+    }
+
+    .register-card input[type="text"],
+    .register-card input[type="email"],
+    .register-card input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .register-card button {
+      background-color: #3cb5ad;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .register-card button:hover {
+      background-color: #2e8b8b;
+    }
+
+    .register-card .link {
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    .register-card .link a {
+      color: #2e8b8b;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .register-card .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-card">
+    <h2>Create an Account</h2>
+    {% if error %}
+  <div style="color: red; font-weight: bold; margin-bottom: 15px;">
+    {{ error }}
+  </div>
+{% endif %}
+
+{% if success %}
+  <script>
+    alert("{{ success }}");
+    window.location.href = "{{ url_for('login') }}";
+  </script>
+{% endif %}
+
+    <form method="POST">
+      <input type="text" name="username" placeholder="Enter your name" required>
+      <input type="email" name="email" placeholder="Enter your email" required>
+      <input type="password" name="password" placeholder="Enter your password" required>
+      <button type="submit">Register</button>
+    </form>
+    <div class="link">
+      Already have an account? <a href="{{ url_for('login') }}">Login</a>
+    </div>
+  </div>
+
+</body>
+</html>

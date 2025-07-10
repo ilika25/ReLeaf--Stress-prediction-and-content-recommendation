@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReLeaf – Stress Prediction and Content Recommendation</title>
+  
+  <!-- Google Font: Quicksand -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #e0f7f4;
+      color: #2f4f4f;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 60px 40px;
+      border-radius: 20px;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .container img {
+      max-width: 150px;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      color: #00695c;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 35px;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 30px;
+      background-color: #4db6ac;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00796b;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .container {
+        padding: 40px 20px;
+      }
+      .btn-group {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://nationalfund.org/wp-content/uploads/2022/04/AdobeStock_401250325-scaled.jpeg" alt="ReLeaf Logo" />
+    <h1>Welcome to ReLeaf</h1>
+    <p>Your personal space to understand, track, and reduce stress through typing patterns, mood analysis, and personalized recommendations.</p>
+    <div class="btn-group">
+      <button onclick="window.location.href='/login'">Login</button>
+      <button onclick="window.location.href='/register'">Register</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stress Prediction Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        .card {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input[type="number"], select {
+            padding: 6px;
+            margin: 8px 0;
+            width: 250px;
+        }
+        button {
+            padding: 10px 16px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        img {
+            max-width: 100%;
+            border: 2px solid #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📊 Stress Prediction Results</h2>
+
+    <div class="card">
+        <h3>Summary</h3>
+        <p><strong>Typing Speed:</strong> {{ speed }} WPM</p>
+        <p><strong>Typos:</strong> {{ typos }}</p>
+        <p><strong>Sleep Hours:</strong> {{ sleep }}</p>
+        <p><strong>Screen Time:</strong> {{ screen }}</p>
+        <p><strong>User Type:</strong> {{ user_type }}</p>
+        <p><strong>Detected Emotion:</strong> {{ expression }}</p>
+        <p><strong>Stress Score:</strong> {{ stress_score }}% – <strong>{{ label }}</strong></p>
+    </div>
+
+    {% if tag %}
+    <div class="card">
+        <h3>🎯 Recommended Content: {{ tag|capitalize }}</h3>
+        {% if content.description %}
+            <p><strong>Description:</strong> {{ content.description }}</p>
+        {% endif %}
+
+        {% if content.songs %}
+            <h4>🎵 Songs:</h4>
+            <ul>
+                {% for song in content.songs %}
+                    <li>{{ song }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if content.blogs %}
+            <h4>📝 Blogs:</h4>
+            <ul>
+                {% for blog in content.blogs %}
+                    <li>{{ blog }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if content.movies %}
+            <h4>🎬 Movies:</h4>
+            <ul>
+                {% for movie in content.movies %}
+                    <li>{{ movie }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if content.help_sites %}
+            <h4>🌐 Help Sites:</h4>
+            <ul>
+                {% for site in content.help_sites %}
+                    <li>{{ site }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if content.hotlines %}
+            <h4>☎️ Hotlines:</h4>
+            <ul>
+                {% for hotline in content.hotlines %}
+                    <li>{{ hotline }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h3>🙋 Share Your Feedback</h3>
+        <form action="/submit-feedback" method="POST">
+            <input type="hidden" name="speed" value="{{ speed }}">
+            <input type="hidden" name="typos" value="{{ typos }}">
+            <input type="hidden" name="sleep" value="{{ sleep }}">
+            <input type="hidden" name="screen" value="{{ screen }}">
+            <input type="hidden" name="user_type" value="{{ user_type }}">
+            <input type="hidden" name="expression" value="{{ expression }}">
+            <input type="hidden" name="stress_score" value="{{ stress_score }}">
+            <input type="hidden" name="tag" value="{{ tag }}">
+
+            <label>🧠 How stressed do you *actually* feel? (1-10)</label><br>
+            <input type="number" name="actual_stress" min="1" max="10" required><br>
+
+            <label>📈 How accurate was the prediction? (1-10)</label><br>
+            <input type="number" name="accuracy" min="1" max="10" required><br>
+
+            <label>✅ Was the recommended content helpful?</label><br>
+            <select name="content_feedback" required>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select><br><br>
+
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </div>
+
+    {% if graph %}
+    <div class="card">
+        <h3>📊 Stress Trend</h3>
+        <img src="{{ graph }}" alt="Stress Graph" style="width:100%; max-width:600px;">
+    </div>
+    {% endif %}
+
+</body>
+</html>

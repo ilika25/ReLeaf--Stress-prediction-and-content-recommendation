@@ -1,0 +1,24 @@
+timestamp,typing_speed,typos,sleep_hours,screen_hours,expression,user_type,stress_score,stress_label,user_stress_feedback,predicted_accuracy_feedback
+2025-07-05 09:26:07,43.86214308790923,1,7.0,6.0,neutral,student,21.5,Low Stress,3.0,9.0
+2025-07-05 09:28:00,30.21130836732603,0,5.0,7.0,surprise,student,23.0,Low Stress,3.0,8.0
+2025-07-05 09:35:31,31.47546213794108,0,6.0,5.0,neutral,student,14.0,Very Low Stress,5.0,7.0
+2025-07-05 09:37:23,43.04305386420885,0,4.0,8.0,happy,gamer,22.0,Low Stress,5.0,9.0
+2025-07-05 09:39:02,34.58561122139557,1,6.0,9.0,happy,professional,30.5,Low Stress,5.0,5.0
+2025-07-05 09:41:25,33.52505808910362,0,5.0,8.0,angry,professional,63.0,High Stress,8.0,9.0
+2025-07-05 09:42:58,21.227500661518867,0,6.0,3.0,sad,casual,54.0,Moderate Stress,6.0,8.0
+2025-07-05 09:45:12,37.998112546225876,0,6.0,4.0,surprise,student,9.0,Very Low Stress,3.0,8.0
+2025-07-05 09:46:39,13.23815418847174,0,6.0,4.0,fear,casual,84.0,Extreme Stress,8.0,9.0
+2025-07-05 09:48:11,43.01139526801839,0,4.0,8.0,neutral,gamer,32.0,Low Stress,4.0,8.0
+2025-07-05 10:15:11,48.198824010184374,0,6.0,7.0,neutral,student,24.0,Low Stress,5.0,8.0
+2025-07-05 10:51:37,26.8064622946139,1,4.0,6.0,fear,student,83.5,Extreme Stress,9.0,9.0
+2025-07-05 11:41:04,32.85508022260737,0,7.0,6.0,happy,student,20.0,Very Low Stress,,9.0
+2025-07-05 16:54:24,37.35,0,5.5,6.0,,student,36.0,Low Stress,,
+2025-07-05 17:43:42,29.67,1,5.0,8.0,fear,student,74.5,High Stress,9.0,9.0
+2025-07-05 18:12:51,30.55,0,8.0,4.0,sad,student,40.0,Low Stress,5.0,9.0
+2025-07-05 18:17:01,43.18,0,7.0,6.0,happy,student,10.0,Very Low Stress,7.0,9.0
+2025-07-05 18:20:55,30.2,0,8.0,6.0,sad,student,50.0,Moderate Stress,7.0,8.0
+2025-07-08 15:18:49,39.12,0,6.0,5.0,neutral,student,14.0,Very Low Stress,8.0,8.0
+2025-07-09 14:22:42,35.56,0,6.0,7.0,sad,student,44.0,Moderate Stress,4.0,8.0
+2025-07-09 14:28:30,43.05,0,3.0,7.0,sad,student,56.0,Moderate Stress,8.0,9.0
+2025-07-09 14:31:28,35.97,0,5.0,8.0,sad,student,53.0,Moderate Stress,7.0,8.0
+2025-07-10 18:08:14,42.82,0,6.0,7.0,sad,student,44.0,Moderate Stress,8.0,7.0
