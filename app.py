@@ -3,11 +3,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from stress_predictor import (
+from stress_predictor import ( # type: ignore
     calculate_stress_ml, get_stress_label, recommend_content,
     save_data, save_content_feedback, fallback_stress_score
 )
-from content_library import content_library
+from content_library import content_library # type: ignore
 from datetime import datetime
 import base64
 import numpy as np
@@ -109,6 +109,27 @@ def predict():
     label = get_stress_label(stress_score)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # ⏺️ Save prediction to MongoDB before feedback
+    stress_collection.insert_one({
+        "timestamp": timestamp,
+        "user_email": user_email,
+        "typing_speed": speed,
+        "typos": typos,
+        "sleep_hours": sleep,
+        "screen_hours": screen,
+        "expression": expression,
+        "user_type": user_type,
+        "stress_score": stress_score,
+        "predicted_label": label
+    })
+
+    # 📈 Generate graph
+    graph_path = generate_user_graph(user_email)
+    graph_data = ""
+    if graph_path:
+        with open(graph_path, "rb") as img_file:
+            graph_data = "data:image/png;base64," + base64.b64encode(img_file.read()).decode()
+
     try:
         recommended_tag = recommend_content(speed, typos, sleep, screen, expression, user_type, stress_score)
         content = content_library.get(recommended_tag, {})
@@ -127,6 +148,7 @@ def predict():
                            label=label,
                            tag=recommended_tag,
                            content=content,
+                           graph=graph_data,
                            user_email=user_email)
 
 @app.route('/submit-feedback', methods=['POST'])
@@ -144,6 +166,7 @@ def submit_feedback():
         stress_score = float(request.form['stress_score'])
         tag = request.form['tag']
         user_email = session['user_email']
+        user_name = session['user_name']
 
         actual_stress = float(request.form['actual_stress'])
         accuracy = float(request.form['accuracy'])
@@ -156,20 +179,9 @@ def submit_feedback():
                   actual_stress, accuracy, get_stress_label(stress_score), user_type)
         save_content_feedback([speed, typos, sleep, screen, expression, user_type, stress_score], tag, content_feedback)
 
-        # Save to MongoDB
-        stress_collection.insert_one({
-            "timestamp": timestamp,
-            "user_email": user_email,
-            "typing_speed": speed,
-            "typos": typos,
-            "sleep_hours": sleep,
-            "screen_hours": screen,
-            "expression": expression,
-            "user_type": user_type,
-            "stress_score": stress_score,
-            "predicted_label": get_stress_label(stress_score)
-        })
+        # ❌ No need to insert to MongoDB again (already done in /predict)
 
+        # Generate graph
         graph_path = generate_user_graph(user_email)
         graph_data = ""
         if graph_path:
@@ -190,7 +202,8 @@ def submit_feedback():
                                tag=tag,
                                content=content,
                                graph=graph_data,
-                               user_email=user_email)
+                               user_email=user_email,
+                               user_name=user_name)
 
     except Exception as e:
         return f"❌ Error submitting feedback: {e}"
@@ -198,14 +211,15 @@ def submit_feedback():
 @app.route('/plot/<user_email>')
 def plot_user_stress(user_email):
     try:
-        user_name = session.get('user_name', 'User')
-        return render_template("user_graph.html", graph_url=generate_user_graph(user_email), user_name=user_name)
-
+        graph_url = generate_user_graph(user_email)
+        return render_template("user_graph.html", graph_url=graph_url)
     except Exception as e:
         return f"❌ Error generating user graph: {e}"
 
 def generate_user_graph(user_email):
     try:
+        user_name = session.get('user_name', user_email)  # fallback to email if name not in session
+
         records = list(stress_collection.find(
             {"user_email": user_email},
             {"_id": 0, "timestamp": 1, "stress_score": 1}
@@ -222,7 +236,7 @@ def generate_user_graph(user_email):
         plt.plot(df['timestamp'], df['stress_score'], marker='o', linestyle='-', color='teal')
         plt.xlabel("Timestamp")
         plt.ylabel("Stress Score")
-        plt.title(f"Stress Trend for {user_email}")
+        plt.title(f"Stress Trend for {user_name}")
         plt.xticks(rotation=45)
         plt.tight_layout()
 

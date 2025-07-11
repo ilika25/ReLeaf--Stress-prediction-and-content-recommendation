@@ -32,8 +32,8 @@ def measure_typing():
     time_taken = end - start
     target_words = target.strip().split()
     typed_words = typed.strip().split()
-    typo_count = sum(1 for t, u in zip(target_words, typed_words) if t != u)
-    typo_count += abs(len(typed_words) - len(target_words))
+    typo_count = sum(1 for t, u in zip(target_words, typed_words) if t != u) #typos due to incorrect words
+    typo_count += abs(len(typed_words) - len(target_words)) #typos due to mismatch in length i.e lesser/more no. of words
     correct_words = max(len(target_words) - typo_count, 0)
     wpm = (correct_words / time_taken) * 60 if time_taken > 0 else 0
 
@@ -94,35 +94,45 @@ def detect_expression():
 
 # ----------- Phase 3: ML Stress Prediction -----------
 
-def calculate_stress_ml(speed, typos, sleep, screen, expression,user_type):
-    # Fallback to manual weights if model not trained yet
-    if not os.path.exists("stress_model.pkl") or not os.path.exists("stress_scaler.pkl"):
+import os
+import joblib
+import pandas as pd
+
+def calculate_stress_ml(speed, typos, sleep, screen, expression, user_type):
+    # Fallback to rule-based method if model not available
+    if not os.path.exists("stress_model.pkl") or \
+       not os.path.exists("label_encoder_expression.pkl") or \
+       not os.path.exists("label_encoder_user_type.pkl"):
         print("\n⚠️ Model not trained yet. Using basic rule-based estimation.\n")
-        return fallback_stress_score(speed, typos, sleep, screen, expression,user_type)
+        return fallback_stress_score(speed, typos, sleep, screen, expression, user_type)
 
-    # If model exists, proceed with ML prediction
-    import joblib
+    # Load model and encoders
     model = joblib.load("stress_model.pkl")
-    scaler = joblib.load("stress_scaler.pkl")
-    
-    emotion_map = {
-        "angry": 0.9, "disgust": 0.8, "fear": 0.8, "sad": 0.7,
-        "neutral": 0.4, "happy": 0.1, "surprise": 0.3,
-        "No face detected": 0.5
-    }
-    face_score = emotion_map.get(expression, 0.5)
-    input_data = [[speed, typos, sleep, screen, face_score]]
-    input_scaled = scaler.transform(input_data)
-    prediction = model.predict(input_scaled)[0] * 100
+    le_expression = joblib.load("label_encoder_expression.pkl")
+    le_user_type = joblib.load("label_encoder_user_type.pkl")
 
-    print("\n📊 Feature Contribution Weights:")
-    weights = model.coef_
-    factors = ["Typing Speed", "Typos", "Sleep Hours", "Screen Time", "Emotion Score"]
-    for factor, weight, value in zip(factors, weights, input_data[0]):
-        contribution = round(weight * value, 2)
-        print(f"{factor}: {value} x {round(weight, 3)} = {contribution}")
+    # Encode categorical inputs
+    expression_encoded = le_expression.transform([expression])[0]
+    user_type_encoded = le_user_type.transform([user_type])[0]
+
+    # Prepare input for prediction
+    input_data = pd.DataFrame([{
+        "typing_speed": speed,
+        "typos": typos,
+        "sleep_hours": sleep,
+        "screen_hours": screen,
+        "expression_encoded": expression_encoded,
+        "user_type_encoded": user_type_encoded
+    }])
+
+    # Predict
+    prediction = model.predict(input_data)[0]
+
+    print("\n✅ Prediction completed using trained model.")
+    print(f"📈 Predicted Stress Level: {round(prediction, 2)}")
 
     return round(prediction, 2)
+
 def get_user_type():
     print("\nSelect your profile type:")
     print("1. Student")
