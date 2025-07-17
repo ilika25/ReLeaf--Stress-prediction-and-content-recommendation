@@ -3,11 +3,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from stress_predictor import ( # type: ignore
+from utils.stress_predictor import ( # type: ignore
     calculate_stress_ml, get_stress_label, recommend_content,
     save_data, save_content_feedback, fallback_stress_score
 )
-from content_library import content_library # type: ignore
+from utils.content_library import content_library # type: ignore
 from datetime import datetime
 import base64
 import numpy as np
@@ -215,10 +215,12 @@ def plot_user_stress(user_email):
         return render_template("user_graph.html", graph_url=graph_url)
     except Exception as e:
         return f"❌ Error generating user graph: {e}"
-
+import seaborn as sns
+import matplotlib.dates as mdates
+from collections import defaultdict
 def generate_user_graph(user_email):
     try:
-        user_name = session.get('user_name', user_email)  # fallback to email if name not in session
+        user_name = session.get('user_name', user_email)
 
         records = list(stress_collection.find(
             {"user_email": user_email},
@@ -231,17 +233,27 @@ def generate_user_graph(user_email):
         df = pd.DataFrame(records)
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         df.sort_values('timestamp', inplace=True)
+        df['date'] = df['timestamp'].dt.date
+
+        # Group by date
+        grouped = df.groupby('date')
 
         plt.figure(figsize=(12, 6))
-        plt.plot(df['timestamp'], df['stress_score'], marker='o', linestyle='-', color='teal')
-        plt.xlabel("Timestamp")
-        plt.ylabel("Stress Score")
-        plt.title(f"Stress Trend for {user_name}")
-        plt.xticks(rotation=45)
+        for date, group in grouped:
+            # Plot all stress_scores on the same date with slight jitter in x
+            x_vals = [date] * len(group)
+            y_vals = group['stress_score'].tolist()
+            plt.plot(x_vals, y_vals, marker='o', linestyle='', color='teal')  # no line between days
+
+        plt.title(f"🧠 Stress Trend for {user_name}", fontsize=14, pad=20)
+        plt.xlabel("Date", fontsize=12)
+        plt.ylabel("Stress Score", fontsize=12)
+        plt.xticks(rotation=45, fontsize=10)
+        plt.grid(True, linestyle='--', alpha=0.3)
         plt.tight_layout()
 
         filename = f"static/graph_{user_email}.png"
-        plt.savefig(filename)
+        plt.savefig(filename, dpi=150)
         plt.close()
 
         return filename
@@ -249,10 +261,10 @@ def generate_user_graph(user_email):
     except Exception as e:
         print(f"Graph generation error: {e}")
         return None
-
 if __name__ == "__main__":
-    if not os.path.exists("content_training.csv"):
-        with open("content_training.csv", "w", newline="") as f:
+    csv_path = os.path.join("utils", "content_training.csv")
+    if not os.path.exists(csv_path):
+        with open(csv_path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["typing_speed", "typos", "sleep_hours", "screen_hours",
                              "expression", "user_type", "stress_score",

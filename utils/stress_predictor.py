@@ -11,7 +11,7 @@ from datetime import datetime
 import joblib
 import numpy as np
 import os
-from content_library import content_library
+from .content_library import content_library
 
 # ----------- Phase 1: Typing Speed & Typos -----------
 def measure_typing():
@@ -100,16 +100,20 @@ import pandas as pd
 
 def calculate_stress_ml(speed, typos, sleep, screen, expression, user_type):
     # Fallback to rule-based method if model not available
-    if not os.path.exists("stress_model.pkl") or \
-       not os.path.exists("label_encoder_expression.pkl") or \
-       not os.path.exists("label_encoder_user_type.pkl"):
+    model_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models")
+    stress_model_path= os.path.join(model_folder,"stress_model.pkl")
+    label_encoder_expression_path= os.path.join(model_folder,"label_encoder_expression.pkl")
+    label_encoder_user_path= os.path.join(model_folder,"label_encoder_user_type.pkl")
+    if not os.path.exists(stress_model_path) or \
+       not os.path.exists(label_encoder_expression_path) or \
+       not os.path.exists(label_encoder_user_path):
         print("\n⚠️ Model not trained yet. Using basic rule-based estimation.\n")
         return fallback_stress_score(speed, typos, sleep, screen, expression, user_type)
 
     # Load model and encoders
-    model = joblib.load("stress_model.pkl")
-    le_expression = joblib.load("label_encoder_expression.pkl")
-    le_user_type = joblib.load("label_encoder_user_type.pkl")
+    model = joblib.load("../models/stress_model.pkl")
+    le_expression = joblib.load("../models/label_encoder_expression.pkl")
+    le_user_type = joblib.load("../models/label_encoder_user_type.pkl")
 
     # Encode categorical inputs
     expression_encoded = le_expression.transform([expression])[0]
@@ -349,7 +353,7 @@ def get_stress_label(score):
 
 # ----------- Phase 4: Save Data & Graph -----------
 def save_data(data, user_feedback=None, accuracy_feedback=None, label="", user_type="student"):
-    filename = "user_feedback_data.csv"
+    filename="user_feedback_data.csv"
     header = [
         "timestamp", "typing_speed", "typos", "sleep_hours", "screen_hours",
         "expression", "user_type", "stress_score", "stress_label",
@@ -367,7 +371,7 @@ def save_data(data, user_feedback=None, accuracy_feedback=None, label="", user_t
         writer = csv.writer(f)
         writer.writerow(data[:6] + [user_type] + data[6:] + [label, user_feedback, accuracy_feedback])
 def save_content_feedback(features, content_tag, content_feedback):
-    filename = "content_training_data.csv"
+    filename="content_training_data.csv"
     header = [
         "typing_speed", "typos", "sleep_hours", "screen_hours",
         "expression", "user_type", "stress_score",
@@ -385,8 +389,12 @@ def save_content_feedback(features, content_tag, content_feedback):
 
 def recommend_content(speed, typos, sleep, screen, expression, user_type, stress_score):
     # Load model and encoders
-    model = joblib.load("content_recommender_model.pkl")
-    encoders = joblib.load("label_encoders.pkl")
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    model_folder = os.path.join(base_dir, "models")
+    model_path= os.path.join(model_folder,"content_recommender_model.pkl")
+    encoder_path= os.path.join(model_folder,"label_encoders.pkl")
+    model = joblib.load(model_path)
+    encoders = joblib.load(encoder_path)
 
     # Encode categorical values
     expression_encoded = encoders["expression"].transform([expression])[0]
@@ -404,7 +412,7 @@ import pandas as pd
 
 def plot_stress(return_path=False):
     try:
-        df = pd.read_csv("user_feedback_data.csv")
+        df = pd.read_csv("../utils/user_feedback_data.csv")
         timestamps = df['timestamp']
         stress_scores = df['stress_score']
 
