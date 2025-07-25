@@ -222,6 +222,7 @@ def generate_user_graph(user_email):
     try:
         user_name = session.get('user_name', user_email)
 
+        # Step 1: Fetch and format records
         records = list(stress_collection.find(
             {"user_email": user_email},
             {"_id": 0, "timestamp": 1, "stress_score": 1}
@@ -230,28 +231,48 @@ def generate_user_graph(user_email):
         if not records:
             return None
 
+        # Step 2: Create DataFrame and parse timestamp
         df = pd.DataFrame(records)
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         df.sort_values('timestamp', inplace=True)
         df['date'] = df['timestamp'].dt.date
 
-        # Group by date
-        grouped = df.groupby('date')
+        # Step 3: Group by date and compute average stress score
+        daily_avg = df.groupby('date')['stress_score'].mean().reset_index()
 
+        # Step 4: Plotting
         plt.figure(figsize=(12, 6))
-        for date, group in grouped:
-            # Plot all stress_scores on the same date with slight jitter in x
-            x_vals = [date] * len(group)
-            y_vals = group['stress_score'].tolist()
-            plt.plot(x_vals, y_vals, marker='o', linestyle='', color='teal')  # no line between days
+        sns.set_style("whitegrid")
 
-        plt.title(f"🧠 Stress Trend for {user_name}", fontsize=14, pad=20)
-        plt.xlabel("Date", fontsize=12)
-        plt.ylabel("Stress Score", fontsize=12)
+        plt.plot(
+            daily_avg['date'],
+            daily_avg['stress_score'],
+            color='teal',
+            linewidth=2.5,
+            marker='o',
+            markersize=7,
+            markerfacecolor='black'
+        )
+
+        # X-axis formatting
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
+        plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
         plt.xticks(rotation=45, fontsize=10)
-        plt.grid(True, linestyle='--', alpha=0.3)
+
+        # Y-axis formatting (0 to 100 with steps of 10)
+        plt.ylim(0, 100)
+        plt.yticks(range(0, 101, 10), fontsize=10)
+
+        # Labels and title
+        plt.title(f"🧠 Stress Trend for {user_name}", fontsize=16, pad=20)
+        plt.xlabel("Date", fontsize=13)
+        plt.ylabel("Average Stress Score", fontsize=13)
+
+        # Grid and layout
+        plt.grid(True, linestyle='--', alpha=0.5)
         plt.tight_layout()
 
+        # Save graph
         filename = f"static/graph_{user_email}.png"
         plt.savefig(filename, dpi=150)
         plt.close()
